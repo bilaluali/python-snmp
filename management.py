@@ -18,8 +18,13 @@ from dataStructures import *
 from argparse import ArgumentParser, ArgumentTypeError
 
 # GLOBAL data
-community, version, ip = None, None, None
+community, version, ip, session = None, None, None, None
 devices = {}
+
+#Commands tap Interface
+#ip tuntap add name tap0 mode tap
+#ip link set tap0 up
+#ip addr add 40.1.12.10/22 dev tap0
 
 
 def ip_format(addr):
@@ -36,8 +41,8 @@ def ip_format(addr):
     return addr
 
 
-def main(argv=None):
-    global community, version, ip
+def parse_args():
+    global community, version, ip, session
 
     parser = ArgumentParser()
 
@@ -55,8 +60,51 @@ def main(argv=None):
     community = namespace.community
     version = namespace.version
     ip = namespace.ip
+    session = Session(hostname=ip, community=community, version=version)
 
-    print(community, version, ip)
+
+def main(argv=None):
+    parse_args()
+    init()
+
+    return 0
+
+
+def init():
+
+    id = getIdentifier('.1.3.6.1.2.1.1.')
+
+    ifs = getIfs('.1.3.6.1.2.1.2')
+
+
+def getIdentifier(oid):
+    name = session.get(oid+'5.0').value
+    desc = session.get(oid+'1.0').value
+    situation = session.get(oid+'1.0').value
+    upTime = session.get(oid+'3.0').value
+
+    return Identifier(name, desc, situation, upTime)
+
+
+def getIfs(oid):
+    total_entries = int(session.get(oid+'.1.0').value)
+    oid += '.2.1'
+
+    for row in range(1,total_entries+1):
+
+        desc = session.get(oid+'.2.'+str(row)).value
+        type = session.get(oid+'.3.'+str(row)).value
+        speed = session.get(oid+'.5.'+str(row)).value
+        addr = session.get(oid+'.6.'+str(row)).value
+        print('desc entry ['+str(row)+']: '+ desc )
+        print('type entry ['+str(row)+']: '+ type )
+        print('Speed entry ['+str(row)+']: '+ speed )
+        print('Addr entry ['+str(row)+']: '+ addr )
+        #print(len(addr))
+        print('#'*50)
+
+
+
 
 if __name__ == '__main__':
     exit(main())

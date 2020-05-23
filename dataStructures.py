@@ -14,11 +14,12 @@ class Device():
 
 class Identifier():
 
-    def __init__(self, name="", description="", status="", time_on=0):
+    def __init__(self, name="", description="", status="", time_on=""):
         self.name = name
         self.description = description
         self.status = status
         self.time_on = time_on
+
 
 
 class Interface():
