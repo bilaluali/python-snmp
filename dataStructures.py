@@ -43,8 +43,24 @@ class Entry():
 class Address():
 
     def __init__(self, ip, mask=None):
+        if mask:
+            try:
+                mask = self.cidr_to_netmask(int(mask))
+            except ValueError:
+                pass
         self.ip = ip
         self.mask = mask
+
+
+    def cidr_to_netmask(cidr):
+        cidr = int(cidr)
+        mask = (0xffffffff >> (32 - cidr)) << (32 - cidr)
+        return (str( (0xff000000 & mask) >> 24)   + '.' +
+            str( (0x00ff0000 & mask) >> 16)   + '.' +
+            str( (0x0000ff00 & mask) >> 8)    + '.' +
+            str( (0x000000ff & mask)))
+
+
 
     def __str__(self):
         if self.mask: return ip + " " + mask
