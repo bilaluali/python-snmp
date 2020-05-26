@@ -52,7 +52,7 @@ class Address():
         self.mask = mask
 
 
-    def cidr_to_netmask(cidr):
+    def cidr_to_netmask(self, cidr):
         cidr = int(cidr)
         mask = (0xffffffff >> (32 - cidr)) << (32 - cidr)
         return (str( (0xff000000 & mask) >> 24)   + '.' +

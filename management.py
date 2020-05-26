@@ -25,6 +25,7 @@ devices = {}
 #ip tuntap add name tap0 mode tap
 #ip link set tap0 up
 #ip addr add 40.1.12.10/22 dev tap0
+# snmp-server community public RO  
 
 
 def ip_format(addr):
@@ -74,11 +75,32 @@ def init():
 
     id, ifs, rt = getIdentifier(), getIfs(), getRouteTable()
 
-    # for i in session.walk('ipAddressTable'):
-    #     oid_index= i.oid_index
+    init_node = Device(id=id, ifs=ifs, ip_table=rt)
 
-    #     print(('ipAddressIfIndex.'+oid_index))
-    
+    for e in rt:
+        print(e.addr, "--> ", e.next_hop)
+
+
+# def iter_network(node=None):
+
+#     if not Node: pass
+
+#     sets, expanded = [node], []
+
+#     while len(sets):
+#         curr=sets.pop(0) #BFS.FIFO queue
+#         expanded.append(curr)
+
+#         for iff in node.ifs:
+#             if int(iff.type) != 6:
+#                 continue
+
+#             sets.append()
+
+
+
+
+
 def getIdentifier():
     # Retrieve system statistics.
 
@@ -104,15 +126,15 @@ def getIfs():
         type = session.get('ifType.' + str(index)).value
         desc = session.get('ifDescr.' + str(index)).value
         speed = session.get('ifSpeed.' + str(index)).value
-        addr_table = session.walk('ipAddressIfIndex')
+        addr_table = session.walk('ipAdEntIfIndex')
         addr = None
 
         for entry in addr_table:
             if entry.value == str(index):
-                curr = session.get('ipAddressPrefix.' + entry.oid_index).value.split('.')[-5:]
-                addr = Address(".".join(curr[:-1]), "".join(curr[-1]))
+                addr = Address(session.get('ipAdEntAddr.' + entry.oid_index).value,
+                                session.get('ipAdEntNetMask.' + entry.oid_index).value)
 
-        ifs.append(Interface(type, desc, speed, None))
+        ifs.append(Interface(type, desc, speed, addr))
 
     return ifs
 
@@ -127,11 +149,12 @@ def getRouteTable():
         route_type = session.get('ipCidrRouteType.' + oid_index).value
         addr = Address(session.get('ipCidrRouteDest.' + oid_index).value,
                        session.get('ipCidrRouteMask.' + oid_index).value)     
-        next_hop = session.get('ipCidrRouteNextHop.' + oid_index).value
+        next_hop = Address(session.get('ipCidrRouteNextHop.' + oid_index).value)
 
 
         routes.append(Entry(route_type, addr, next_hop))
 
+    return routes
 
 if __name__ == '__main__':
     exit(main())
