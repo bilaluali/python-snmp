@@ -47,5 +47,6 @@ class Address():
         self.mask = mask
 
     def __str__(self):
-        if self.mask: return ip + " " + mask
-        return ip
+        if self.mask:
+            return self.ip + "/" + self.mask
+        return self.ip

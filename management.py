@@ -72,38 +72,65 @@ def main(argv=None):
 
 def init():
 
-    id = getIdentifier('.1.3.6.1.2.1.1.')
+    id, ifs, rt = getIdentifier(), getIfs(), getRouteTable()
 
-    ifs = getIfs('.1.3.6.1.2.1.2')
+    # for i in session.walk('ipAddressTable'):
+    #     oid_index= i.oid_index
 
+    #     print(('ipAddressIfIndex.'+oid_index))
+    
+def getIdentifier():
+    # Retrieve system statistics.
 
-def getIdentifier(oid):
-    name = session.get(oid+'5.0').value
-    desc = session.get(oid+'1.0').value
-    situation = session.get(oid+'1.0').value
-    upTime = session.get(oid+'3.0').value
+    name = session.get('sysName.0').value
+    desc = session.get('sysDescr.0').value
+    situation = session.get('sysORLastChange.0').value  # TODO
+    upTime = session.get('sysUpTime.0').value
 
     return Identifier(name, desc, situation, upTime)
 
 
-def getIfs(oid):
-    total_entries = int(session.get(oid+'.1.0').value)
-    oid += '.2.1'
+def getIfs():
+    # Retrieve interfaces information
 
-    for row in range(1,total_entries+1):
+    total_entries = int(session.get('ifNumber.0').value)
+    ifs = []
 
-        desc = session.get(oid+'.2.'+str(row)).value
-        type = session.get(oid+'.3.'+str(row)).value
-        speed = session.get(oid+'.5.'+str(row)).value
-        addr = session.get(oid+'.6.'+str(row)).value
-        print('desc entry ['+str(row)+']: '+ desc )
-        print('type entry ['+str(row)+']: '+ type )
-        print('Speed entry ['+str(row)+']: '+ speed )
-        print('Addr entry ['+str(row)+']: '+ addr )
-        #print(len(addr))
-        print('#'*50)
+    
+    for index in range(1,total_entries+1):
+        ''' Note we save all type of ifs, but when exploring we shall only use,
+         type 6 ifs (ethernet).'''
+        status = session.get('ifOperStatus.' + str(index)).value
+        type = session.get('ifType.' + str(index)).value
+        desc = session.get('ifDescr.' + str(index)).value
+        speed = session.get('ifSpeed.' + str(index)).value
+        addr_table = session.walk('ipAddressIfIndex')
+        addr = None
+
+        for entry in addr_table:
+            if entry.value == str(index):
+                curr = session.get('ipAddressPrefix.' + entry.oid_index).value.split('.')[-5:]
+                addr = Address(".".join(curr[:-1]), "".join(curr[-1]))
+
+        ifs.append(Interface(type, desc, speed, None))
+
+    return ifs
 
 
+def getRouteTable():
+
+    routes = []
+
+    for entry in session.walk('ipCidrRouteDest'):
+        oid_index = entry.oid_index
+        
+        route_type = session.get('ipCidrRouteType.' + oid_index).value
+        addr = Address(session.get('ipCidrRouteDest.' + oid_index).value,
+                       session.get('ipCidrRouteMask.' + oid_index).value)     
+        next_hop = session.get('ipCidrRouteNextHop.' + oid_index).value
+
+
+        routes.append(Entry(route_type, addr, next_hop))
 
 
 if __name__ == '__main__':
