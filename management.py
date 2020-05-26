@@ -76,29 +76,38 @@ def init():
     id, ifs, rt = getIdentifier(), getIfs(), getRouteTable()
 
     init_node = Device(id=id, ifs=ifs, ip_table=rt)
-
-    for e in rt:
-        print(e.addr, "--> ", e.next_hop)
-
-
-# def iter_network(node=None):
-
-#     if not Node: pass
-
-#     sets, expanded = [node], []
-
-#     while len(sets):
-#         curr=sets.pop(0) #BFS.FIFO queue
-#         expanded.append(curr)
-
-#         for iff in node.ifs:
-#             if int(iff.type) != 6:
-#                 continue
-
-#             sets.append()
+    iter_network(init_node)
 
 
 
+def iter_network(node=None):
+
+    global session
+
+    if not node: pass
+
+    fringe, expanded = [node], []
+
+    while fringe:
+        curr=fringe.pop(0) #BFS.FIFO queue
+        expanded.append(curr)
+
+        nhs = set()
+        for iff in curr.ifs:
+            if int(iff.type) != 6:
+                continue
+
+            for nh in curr.ip_table:
+                #print(Address.get_net_from_IP(iff.addr.ip, iff.addr.mask), "-->" ,Address.get_net_from_IP(nh.next_hop.ip, iff.addr.mask), end=" ")
+                #print(Address.get_net_from_IP(iff.addr.ip, iff.addr.mask) == Address.get_net_from_IP(nh.next_hop.ip, iff.addr.mask),)
+
+                if Address.get_net_from_IP(iff.addr.ip, iff.addr.mask) == Address.get_net_from_IP(nh.next_hop.ip, iff.addr.mask):
+                    nhs.add(nh.next_hop)
+                    print([e.ip for e in nhs], nh.next_hop)
+
+        print(len(nhs))
+        for e in nhs:
+            print(e)
 
 
 def getIdentifier():

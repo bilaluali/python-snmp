@@ -45,14 +45,15 @@ class Address():
     def __init__(self, ip, mask=None):
         if mask:
             try:
-                mask = self.cidr_to_netmask(int(mask))
+                mask = Address.cidr_to_netmask(int(mask))
             except ValueError:
                 pass
         self.ip = ip
         self.mask = mask
 
 
-    def cidr_to_netmask(self, cidr):
+    @staticmethod
+    def cidr_to_netmask(cidr):
         cidr = int(cidr)
         mask = (0xffffffff >> (32 - cidr)) << (32 - cidr)
         return (str( (0xff000000 & mask) >> 24)   + '.' +
@@ -61,6 +62,17 @@ class Address():
             str( (0x000000ff & mask)))
 
 
+    @staticmethod
+    def get_net_from_IP(ip, mask):
+        if mask:
+            try:
+                mask = Address.cidr_to_netmask(int(mask))
+            except ValueError:
+                pass
+        net = ""
+        for i,m in zip(ip.split('.'), mask.split('.')):
+            net += str(int(i) & int(m)) + '.'
+        return net[:-1]
 
     def __str__(self):
         if self.mask:
