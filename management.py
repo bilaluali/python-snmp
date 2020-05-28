@@ -76,6 +76,10 @@ def init():
     id, ifs, rt = getIdentifier(), getIfs(), getRouteTable()
 
     init_node = Device(id=id, ifs=ifs, ip_table=rt)
+    
+    for i in ifs:
+        print(i.addr)
+    
     iter_network(init_node)
 
 
@@ -92,33 +96,33 @@ def iter_network(node=None):
         curr=fringe.pop(0) #BFS.FIFO queue
         expanded.append(curr)
 
-        nhs = set()
+        nhs = []
         for iff in curr.ifs:
             if int(iff.type) != 6:
                 continue
 
             for nh in curr.ip_table:
-                #print(Address.get_net_from_IP(iff.addr.ip, iff.addr.mask), "-->" ,Address.get_net_from_IP(nh.next_hop.ip, iff.addr.mask), end=" ")
-                #print(Address.get_net_from_IP(iff.addr.ip, iff.addr.mask) == Address.get_net_from_IP(nh.next_hop.ip, iff.addr.mask),)
+                
+                if Address.get_net_from_IP(iff.addr.ip, iff.addr.mask) == Address.get_net_from_IP(nh.next_hop.ip, iff.addr.mask) and nh.next_hop not in nhs:
+                    nhs.append(nh.next_hop)
 
-                if Address.get_net_from_IP(iff.addr.ip, iff.addr.mask) == Address.get_net_from_IP(nh.next_hop.ip, iff.addr.mask):
-                    nhs.add(nh.next_hop)
-                    print([e.ip for e in nhs], nh.next_hop)
-
-        print(len(nhs))
+            
         for e in nhs:
-            print(e)
+            a = Session(hostname=e.ip, community=community, version=version)
+            print(a.get('sysName.0').value)
+
 
 
 def getIdentifier():
     # Retrieve system statistics.
 
     name = session.get('sysName.0').value
+    sys_id = session.get('sysObjectID.0').value
     desc = session.get('sysDescr.0').value
     situation = session.get('sysORLastChange.0').value  # TODO
     upTime = session.get('sysUpTime.0').value
 
-    return Identifier(name, desc, situation, upTime)
+    return Identifier(sys_id, name, desc, situation, upTime)
 
 
 def getIfs():
