@@ -76,7 +76,7 @@ class Address():
 
     def __str__(self):
         if self.mask: return ip + " " + mask
-        return ip
+        return self.ip
 
 
     def __eq__(self, other):
