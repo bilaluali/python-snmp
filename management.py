@@ -25,6 +25,7 @@ devices = {}
 #ip tuntap add name tap0 mode tap
 #ip link set tap0 up
 #ip addr add 40.1.12.10/22 dev tap0
+# snmp-server community public RO  
 
 
 def ip_format(addr):
@@ -72,39 +73,101 @@ def main(argv=None):
 
 def init():
 
-    id = getIdentifier('.1.3.6.1.2.1.1.')
+    id, ifs, rt = getIdentifier(), getIfs(), getRouteTable()
 
-    ifs = getIfs('.1.3.6.1.2.1.2')
-
-
-def getIdentifier(oid):
-    name = session.get(oid+'5.0').value
-    desc = session.get(oid+'1.0').value
-    situation = session.get(oid+'1.0').value
-    upTime = session.get(oid+'3.0').value
-
-    return Identifier(name, desc, situation, upTime)
-
-
-def getIfs(oid):
-    total_entries = int(session.get(oid+'.1.0').value)
-    oid += '.2.1'
-
-    for row in range(1,total_entries+1):
-
-        desc = session.get(oid+'.2.'+str(row)).value
-        type = session.get(oid+'.3.'+str(row)).value
-        speed = session.get(oid+'.5.'+str(row)).value
-        addr = session.get(oid+'.6.'+str(row)).value
-        print('desc entry ['+str(row)+']: '+ desc )
-        print('type entry ['+str(row)+']: '+ type )
-        print('Speed entry ['+str(row)+']: '+ speed )
-        print('Addr entry ['+str(row)+']: '+ addr )
-        #print(len(addr))
-        print('#'*50)
+    init_node = Device(id=id, ifs=ifs, ip_table=rt)
+    
+    for i in ifs:
+        print(i.addr)
+    
+    iter_network(init_node)
 
 
 
+def iter_network(node=None):
+
+    global session
+
+    if not node: pass
+
+    fringe, expanded = [node], []
+
+    while fringe:
+        curr=fringe.pop(0) #BFS.FIFO queue
+        expanded.append(curr)
+
+        nhs = []
+        for iff in curr.ifs:
+            if int(iff.type) != 6:
+                continue
+
+            for nh in curr.ip_table:
+                
+                if Address.get_net_from_IP(iff.addr.ip, iff.addr.mask) == Address.get_net_from_IP(nh.next_hop.ip, iff.addr.mask) and nh.next_hop not in nhs:
+                    nhs.append(nh.next_hop)
+
+            
+        for e in nhs:
+            a = Session(hostname=e.ip, community=community, version=version)
+            print(a.get('sysName.0').value)
+
+
+
+def getIdentifier():
+    # Retrieve system statistics.
+
+    name = session.get('sysName.0').value
+    sys_id = session.get('sysObjectID.0').value
+    desc = session.get('sysDescr.0').value
+    situation = session.get('sysORLastChange.0').value  # TODO
+    upTime = session.get('sysUpTime.0').value
+
+    return Identifier(sys_id, name, desc, situation, upTime)
+
+
+def getIfs():
+    # Retrieve interfaces information
+
+    total_entries = int(session.get('ifNumber.0').value)
+    ifs = []
+
+    
+    for index in range(1,total_entries+1):
+        ''' Note we save all type of ifs, but when exploring we shall only use,
+         type 6 ifs (ethernet).'''
+        status = session.get('ifOperStatus.' + str(index)).value
+        type = session.get('ifType.' + str(index)).value
+        desc = session.get('ifDescr.' + str(index)).value
+        speed = session.get('ifSpeed.' + str(index)).value
+        addr_table = session.walk('ipAdEntIfIndex')
+        addr = None
+
+        for entry in addr_table:
+            if entry.value == str(index):
+                addr = Address(session.get('ipAdEntAddr.' + entry.oid_index).value,
+                                session.get('ipAdEntNetMask.' + entry.oid_index).value)
+
+        ifs.append(Interface(type, desc, speed, addr))
+
+    return ifs
+
+
+def getRouteTable():
+
+    routes = []
+
+    for entry in session.walk('ipCidrRouteDest'):
+        oid_index = entry.oid_index
+        
+        route_type = session.get('ipCidrRouteType.' + oid_index).value
+        addr = Address(session.get('ipCidrRouteDest.' + oid_index).value,
+                       session.get('ipCidrRouteMask.' + oid_index).value)     
+        next_hop = Address(session.get('ipCidrRouteNextHop.' + oid_index).value)
+
+
+        routes.append(Entry(route_type, addr, next_hop))
+
+    return routes
 
 if __name__ == '__main__':
     exit(main())

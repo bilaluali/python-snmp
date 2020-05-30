@@ -11,11 +11,14 @@ class Device():
     def add_entry(self, entry):
         self.ifs.append(entry)
 
+    def __eq__(self, other):
+        return self.id.sys_id == other.id.sys_id
 
 class Identifier():
 
-    def __init__(self, name="", description="", status="", time_on=""):
+    def __init__(self, sys_id, name="", description="", status="", time_on=""):
         self.name = name
+        self.sys_id = sys_id
         self.description = description
         self.status = status
         self.time_on = time_on
@@ -75,7 +78,12 @@ class Address():
         return net[:-1]
 
     def __str__(self):
+<<<<<<< HEAD
         if self.mask: return ip + " " + mask
+=======
+        if self.mask:
+            return self.ip + "/" + self.mask
+>>>>>>> 568e48e49feec80de186ef5c8387d54bca0b54e8
         return self.ip
 
 
