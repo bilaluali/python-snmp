@@ -14,11 +14,16 @@
 import sys
 import graphviz
 from easysnmp import Session
+from easysnmp.exceptions import EasySNMPTimeoutError
 from dataStructures import *
 from argparse import ArgumentParser, ArgumentTypeError
+from pyroute2 import IPRoute, NetlinkError
+from socket import AF_INET
+from ipaddress import IPv4Network
 
 # GLOBAL data
 community, version, ip, session = None, None, None, None
+ipr = IPRoute()
 devices = {}
 
 #Commands tap Interface
@@ -26,6 +31,11 @@ devices = {}
 #ip link set tap0 up
 #ip addr add 40.1.12.10/22 dev tap0
 # snmp-server community public RO  
+
+
+class NotRootUserException(Exception):
+    """Raised when a program not run as root"""
+    pass
 
 
 def ip_format(addr):
@@ -64,6 +74,23 @@ def parse_args():
     session = Session(hostname=ip, community=community, version=version)
 
 
+def set_tuntap():
+    ip = IPRoute()
+    try:
+        ip.link("add", ifname="tap0", kind="tuntap", mode="tap")
+        i = ip.link_lookup(ifname="tap0")[0]
+        ip.link("set", index=i, state="up")
+        ip.addr("add", index=i, address="40.1.10.11", mask=22)
+
+    except NetlinkError as e:
+        if e.code == 1:
+            raise NotRootUserException("")
+        else:
+            raise e
+
+    ip.close()
+
+
 def main(argv=None):
     parse_args()
     init()
@@ -74,23 +101,19 @@ def main(argv=None):
 def init():
 
     id, ifs, rt = getIdentifier(), getIfs(), getRouteTable()
-
     init_node = Device(id=id, ifs=ifs, ip_table=rt)
-    
-    for i in ifs:
-        print(i.addr)
-    
-    iter_network(init_node)
 
+    iter_network(init_node)
 
 
 def iter_network(node=None):
 
     global session
 
-    if not node: pass
+    if not node: return
 
     fringe, expanded = [node], []
+    print("initial", node.id.name)
 
     while fringe:
         curr=fringe.pop(0) #BFS.FIFO queue
@@ -101,28 +124,59 @@ def iter_network(node=None):
             if int(iff.type) != 6:
                 continue
 
-            for nh in curr.ip_table:
-                
-                if Address.get_net_from_IP(iff.addr.ip, iff.addr.mask) == Address.get_net_from_IP(nh.next_hop.ip, iff.addr.mask) and nh.next_hop not in nhs:
-                    nhs.append(nh.next_hop)
+            for e in curr.ip_table:
+                if Address.get_net_from_IP(iff.addr.ip, iff.addr.mask) == \
+                    Address.get_net_from_IP(e.next_hop.ip, iff.addr.mask) and \
+                        e.next_hop not in nhs:
+                    
+                    session = Session(hostname=e.next_hop.ip,community=community, version=version)
+                    
+                    add_route(Address.get_net_from_IP(e.next_hop.ip, iff.addr.mask),
+                    IPv4Network('0.0.0.0/' + iff.addr.mask).prefixlen)
+
+                    try:
+                        id = getIdentifier()
+                    except EasySNMPTimeoutError:
+                        continue
+                    
+
+                    if not is_expanded(expanded, id):
+                        fringe.append(Device(id=id, ifs=getIfs(), ip_table=getRouteTable()))
+                        
+                    nhs.append(e.next_hop)
 
             
-        for e in nhs:
-            a = Session(hostname=e.ip, community=community, version=version)
-            print(a.get('sysName.0').value)
+        for e in expanded:
+            print(e.id.name)
+
+            
+def is_expanded(expanded, id):
+    for dev in expanded:
+        if dev.id == id: return True
+
+    return False
 
 
+def add_route(ip_addr, mask):
+    global ipr
+    
+    try: ipr.route("add", dst=ip_addr, mask=mask, gateway=ip)
+    
+    except NetlinkError as e:
+        """ Route already exists """
+        if e.code == 17: pass
+        else: raise e
 
+                           
 def getIdentifier():
     # Retrieve system statistics.
 
     name = session.get('sysName.0').value
-    sys_id = session.get('sysObjectID.0').value
     desc = session.get('sysDescr.0').value
     situation = session.get('sysORLastChange.0').value  # TODO
     upTime = session.get('sysUpTime.0').value
 
-    return Identifier(sys_id, name, desc, situation, upTime)
+    return Identifier(name, desc, situation, upTime)
 
 
 def getIfs():
@@ -168,6 +222,7 @@ def getRouteTable():
         routes.append(Entry(route_type, addr, next_hop))
 
     return routes
+
 
 if __name__ == '__main__':
     exit(main())
