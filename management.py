@@ -107,57 +107,63 @@ def init():
 
 
 def iter_network(node=None):
-
+    """ Explore network with iterative BFS algorithm."""
     global session
 
     if not node: return
-
-    fringe, expanded = [node], []
-    print("initial", node.id.name)
-
+    fringe, nodes, edges = [node], [], {}
+    
+    
     while fringe:
-        curr=fringe.pop(0) #BFS.FIFO queue
-        expanded.append(curr)
-
-        nhs = []
+        curr=fringe.pop(0)  #FIFO queue
+        nodes.append(curr)
+        
         for iff in curr.ifs:
-            if int(iff.type) != 6:
-                continue
+            if int(iff.type) != 6:continue
+            
+            nw = Address.get_net_from_IP(iff.addr.ip, iff.addr.mask)
+            edges.setdefault((nw, iff.addr.mask), []).append((iff.addr.ip, curr))
 
-            for e in curr.ip_table:
-                if Address.get_net_from_IP(iff.addr.ip, iff.addr.mask) == \
-                    Address.get_net_from_IP(e.next_hop.ip, iff.addr.mask) and \
-                        e.next_hop not in nhs:
-                    
-                    session = Session(hostname=e.next_hop.ip,community=community, version=version)
-                    
-                    add_route(Address.get_net_from_IP(e.next_hop.ip, iff.addr.mask),
-                    IPv4Network('0.0.0.0/' + iff.addr.mask).prefixlen)
+        neighbors = []
+                
+        for e in curr.ip_table:
+            if e.next_hop.ip != "0.0.0.0" and e.next_hop not in neighbors:
+                
+                session = Session(hostname=e.next_hop.ip, community=community, version=version)
 
-                    try:
-                        id = getIdentifier()
-                    except EasySNMPTimeoutError:
-                        continue
-                    
+                mask = get_mask(curr, e.next_hop.ip)
+                add_route(Address.get_net_from_IP(e.next_hop.ip, mask[0]), mask[1])
 
-                    if not is_expanded(expanded, id):
-                        fringe.append(Device(id=id, ifs=getIfs(), ip_table=getRouteTable()))
-                        
-                    nhs.append(e.next_hop)
+                try:
+                    id = getIdentifier()
+                except EasySNMPTimeoutError:
+                    continue
+                
+
+                if not in_fringe(fringe, id) and not is_expanded(nodes, id):
+                    fringe.append(Device(id=id, ifs=getIfs(), ip_table=getRouteTable()))
+                    
+                neighbors.append(e.next_hop)
+
+    return nodes, list(edges.values())
 
             
-        for e in expanded:
-            print(e.id.name)
+def is_expanded(nodes, id):
+    for dev in nodes:
+        if dev.id == id: return True
 
-            
-def is_expanded(expanded, id):
-    for dev in expanded:
+    return False
+
+
+def in_fringe(fringe, id):
+    for dev in fringe:
         if dev.id == id: return True
 
     return False
 
 
 def add_route(ip_addr, mask):
+    """ Function to add dinamically routes """
     global ipr
     
     try: ipr.route("add", dst=ip_addr, mask=mask, gateway=ip)
@@ -167,7 +173,18 @@ def add_route(ip_addr, mask):
         if e.code == 17: pass
         else: raise e
 
-                           
+
+def get_mask(dev, ip):
+    """ Gets mask of a next-hop by interface information we have """
+
+    for iff in dev.ifs:
+        if int(iff.type) !=6: continue
+        if Address.get_net_from_IP(iff.addr.ip, iff.addr.mask) == Address.get_net_from_IP(ip, iff.addr.mask):
+            return iff.addr.mask, IPv4Network('0.0.0.0/' + iff.addr.mask).prefixlen # netmask, cdir
+
+    return "0.0.0.0", 0
+
+
 def getIdentifier():
     # Retrieve system statistics.
 
@@ -207,7 +224,6 @@ def getIfs():
 
 
 def getRouteTable():
-
     routes = []
 
     for entry in session.walk('ipCidrRouteDest'):
