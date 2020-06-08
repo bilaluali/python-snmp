@@ -18,12 +18,12 @@ from easysnmp.exceptions import EasySNMPTimeoutError
 from dataStructures import *
 from argparse import ArgumentParser, ArgumentTypeError
 from pyroute2 import IPRoute, NetlinkError
-from socket import AF_INET
 from ipaddress import IPv4Network
 
 # GLOBAL data
 community, version, ip, session = None, None, None, None
 ipr = IPRoute()
+routes = []
 devices = {}
 
 #Commands tap Interface
@@ -34,7 +34,7 @@ devices = {}
 
 
 class NotRootUserException(Exception):
-    """Raised when a program not run as root"""
+    """ Raised when a program not run as root """
     pass
 
 
@@ -74,23 +74,6 @@ def parse_args():
     session = Session(hostname=ip, community=community, version=version)
 
 
-def set_tuntap():
-    ip = IPRoute()
-    try:
-        ip.link("add", ifname="tap0", kind="tuntap", mode="tap")
-        i = ip.link_lookup(ifname="tap0")[0]
-        ip.link("set", index=i, state="up")
-        ip.addr("add", index=i, address="40.1.10.11", mask=22)
-
-    except NetlinkError as e:
-        if e.code == 1:
-            raise NotRootUserException("")
-        else:
-            raise e
-
-    ip.close()
-
-
 def main(argv=None):
     parse_args()
     init()
@@ -100,11 +83,29 @@ def main(argv=None):
 
 def init():
 
-    id, ifs, rt = getIdentifier(), getIfs(), getRouteTable()
+    id, ifs, rt = get_identifier(), get_ifs(), get_route_table()
     init_node = Device(id=id, ifs=ifs, ip_table=rt)
 
-    iter_network(init_node)
+    n, edges = iter_network(init_node)
 
+    print("NODES")
+    for e in n:
+        print(e.id.name)
+    print()
+
+    print("EDGES")
+    for i in edges:
+        print(i)
+
+
+    print()
+    for en in n:
+        print(en.id.name)
+        for elem in en.ip_table:
+            print(elem.addr, "--> ", elem.next_hop.ip)
+        print()
+
+    delete_routes()
 
 def iter_network(node=None):
     """ Explore network with iterative BFS algorithm."""
@@ -115,33 +116,34 @@ def iter_network(node=None):
     
     
     while fringe:
+
         curr=fringe.pop(0)  #FIFO queue
         nodes.append(curr)
-        
-        for iff in curr.ifs:
-            if int(iff.type) != 6:continue
-            
-            nw = Address.get_net_from_IP(iff.addr.ip, iff.addr.mask)
-            edges.setdefault((nw, iff.addr.mask), []).append((iff.addr.ip, curr))
+        add_edges(edges, curr) 
 
         neighbors = []
                 
         for e in curr.ip_table:
             if e.next_hop.ip != "0.0.0.0" and e.next_hop not in neighbors:
                 
+                # Change session hostname.
                 session = Session(hostname=e.next_hop.ip, community=community, version=version)
 
                 mask = get_mask(curr, e.next_hop.ip)
-                add_route(Address.get_net_from_IP(e.next_hop.ip, mask[0]), mask[1])
+                nw = Address.get_net_from_IP(e.next_hop.ip, mask[0])
+                add_route(nw, mask[1])
 
                 try:
-                    id = getIdentifier()
+                    id = get_identifier()
                 except EasySNMPTimeoutError:
-                    continue
-                
+                    print("Cannot access device " + e.next_hop.ip+ ". Possible issues:\n* SNMP not active on device " + 
+                            "\n* Device from another AS")
+                    
+                    # Not accessible next-hop, but we know is not end-point.
+                    edges.setdefault((nw, mask[0]), []).append((e.next_hop.ip, "network"))
 
                 if not in_fringe(fringe, id) and not is_expanded(nodes, id):
-                    fringe.append(Device(id=id, ifs=getIfs(), ip_table=getRouteTable()))
+                    fringe.append(Device(id=id, ifs=get_ifs(), ip_table=get_route_table()))
                     
                 neighbors.append(e.next_hop)
 
@@ -164,14 +166,33 @@ def in_fringe(fringe, id):
 
 def add_route(ip_addr, mask):
     """ Function to add dinamically routes """
-    global ipr
+    global ipr, routes
     
-    try: ipr.route("add", dst=ip_addr, mask=mask, gateway=ip)
+    try:
+        ipr.route("add", dst=ip_addr, mask=mask, gateway=ip)
+        routes.append((ip_addr, mask))    # Deleted after program execution.
     
     except NetlinkError as e:
         """ Route already exists """
-        if e.code == 17: pass
-        else: raise e
+        if e.code == 17:
+            pass
+
+        elif e.code == 1:
+            raise NotRootUserException("Must run program as root user.")
+
+        else:
+            raise e
+
+
+def add_edges(edges, dev):
+    """ Get each i/f on device and adds network as key and gateways as values """
+
+    for iff in dev.ifs:
+        if int(iff.type) != 6:
+            continue
+        
+        nw = Address.get_net_from_IP(iff.addr.ip, iff.addr.mask)
+        edges.setdefault((nw, iff.addr.mask), []).append((iff.addr.ip, dev))
 
 
 def get_mask(dev, ip):
@@ -185,7 +206,16 @@ def get_mask(dev, ip):
     return "0.0.0.0", 0
 
 
-def getIdentifier():
+def delete_routes():
+    for route in routes:
+        try:
+            ipr.route("del", dst=route[0], mask=route[1], gateway=ip)
+        
+        except NetlinkError:
+            pass
+
+
+def get_identifier():
     # Retrieve system statistics.
 
     name = session.get('sysName.0').value
@@ -196,7 +226,7 @@ def getIdentifier():
     return Identifier(name, desc, situation, upTime)
 
 
-def getIfs():
+def get_ifs():
     # Retrieve interfaces information
 
     total_entries = int(session.get('ifNumber.0').value)
@@ -223,7 +253,7 @@ def getIfs():
     return ifs
 
 
-def getRouteTable():
+def get_route_table():
     routes = []
 
     for entry in session.walk('ipCidrRouteDest'):

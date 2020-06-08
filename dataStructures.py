@@ -14,6 +14,9 @@ class Device():
     def __eq__(self, other):
         return self.id == other.id
 
+    def __str__(self):
+        return self.id.name
+
 
 class Identifier():
 
