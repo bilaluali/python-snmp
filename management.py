@@ -86,24 +86,7 @@ def init():
     id, ifs, rt = get_identifier(), get_ifs(), get_route_table()
     init_node = Device(id=id, ifs=ifs, ip_table=rt)
 
-    n, edges = iter_network(init_node)
-
-    print("NODES")
-    for e in n:
-        print(e.id.name)
-    print()
-
-    print("EDGES")
-    for i in edges:
-        print(i)
-
-
-    print()
-    for en in n:
-        print(en.id.name)
-        for elem in en.ip_table:
-            print(elem.addr, "--> ", elem.next_hop.ip)
-        print()
+    nodes, edges = iter_network(init_node)
 
     delete_routes()
 
@@ -118,6 +101,7 @@ def iter_network(node=None):
     while fringe:
 
         curr=fringe.pop(0)  #FIFO queue
+        print(curr.id.name)
         nodes.append(curr)
         add_edges(edges, curr) 
 
@@ -188,7 +172,7 @@ def add_edges(edges, dev):
     """ Get each i/f on device and adds network as key and gateways as values """
 
     for iff in dev.ifs:
-        if int(iff.type) != 6:
+        if int(iff.type) != 6 or not iff.addr:
             continue
         
         nw = Address.get_net_from_IP(iff.addr.ip, iff.addr.mask)
@@ -217,6 +201,9 @@ def delete_routes():
 
 def get_identifier():
     # Retrieve system statistics.
+
+    for e in session.walk('system'):
+        print(e)
 
     name = session.get('sysName.0').value
     desc = session.get('sysDescr.0').value
