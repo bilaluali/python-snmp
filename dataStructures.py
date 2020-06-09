@@ -12,16 +12,22 @@ class Device():
         self.ifs.append(entry)
 
     def __eq__(self, other):
-        return self.id.sys_id == other.id.sys_id
+        return self.id == other.id
+
+    def __str__(self):
+        return self.id.name
+
 
 class Identifier():
 
-    def __init__(self, sys_id, name="", description="", status="", time_on=""):
+    def __init__(self, name="", description="", status="", time_on=""):
         self.name = name
-        self.sys_id = sys_id
         self.description = description
         self.status = status
         self.time_on = time_on
+
+    def __eq__(self, other):
+        return self.name == other.name and self.description == other.description
 
 
 
