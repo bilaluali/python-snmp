@@ -9,6 +9,7 @@ verify_ssl = true
 graphviz = "*"
 easysnmp = "*"
 net-snmp = "*"
+pydot = "*"
 
 [requires]
 python_version = "3.6"

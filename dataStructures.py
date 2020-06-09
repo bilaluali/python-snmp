@@ -78,12 +78,8 @@ class Address():
         return net[:-1]
 
     def __str__(self):
-<<<<<<< HEAD
-        if self.mask: return ip + " " + mask
-=======
         if self.mask:
             return self.ip + "/" + self.mask
->>>>>>> 568e48e49feec80de186ef5c8387d54bca0b54e8
         return self.ip
 
 
