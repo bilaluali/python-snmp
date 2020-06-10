@@ -89,6 +89,7 @@ def init():
     nodes, edges = iter_network(init_node)
 
     net = NetGenerator(nodes, edges)
+    print("Generated graph in output folder")
     delete_routes()
 
 

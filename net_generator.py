@@ -29,7 +29,7 @@ class NetGenerator():
         for edge in edges:
             transformed_edge = []
             for n in edge:
-                transformed_edge.append((n[0], n[1].id.name))
+                transformed_edge.append((n[0], n[1].id.name if isinstance(n[1], Device) else n[1]))
             edge_list.append(tuple(transformed_edge))
         self.dot = Graph(comment='Network', format='pdf')
         self.data = {'nodes': [n.id.name for n in nodes], 'edges': edge_list}
@@ -82,7 +82,7 @@ class NetGenerator():
                         self.dot.edge(node2, node1, label=net, headlabel=Address.get_gateway_number(iff2.addr.ip, net), taillabel=Address.get_gateway_number(iff1.addr.ip, net))
                     else:
                         self.dot.node('net'+str(num_nets),  shape='box', label='Network')
-                        self.dot.edge(node1, 'net'+str(num_nets), label=net, taillabel=Address.get_gateway_number(iff1.addr.ip, net), headlabel=Address.get_gateway_number(iff2.addr.ip, net))
+                        self.dot.edge(node1, 'net'+str(num_nets), label=net, taillabel=Address.get_gateway_number(iff1.addr.ip, net), headlabel=Address.get_gateway_number(iff2, net))
                 else:
                     self.dot.node('switch'+str(num_nets),  style='invis', label=net)
                     for iff, node in edge:
