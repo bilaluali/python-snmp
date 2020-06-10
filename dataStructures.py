@@ -89,3 +89,7 @@ class Address():
 
     def __eq__(self, other):
         return self.ip == other.ip and self.mask == other.mask
+
+    @staticmethod
+    def get_gateway_number(ip, net):
+        return '.'+str(int(ip.split('.')[-1])-int(net.split('.')[-1]))

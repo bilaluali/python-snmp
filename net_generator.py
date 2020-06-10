@@ -34,6 +34,13 @@ class NetGenerator():
         self.dot = Graph(comment='Network', format='pdf')
         self.data = {'nodes': [n.id.name for n in nodes], 'edges': edge_list}
 
+        '''print([n.id.name for n in nodes])
+        print(edges)
+        for edge in edges:
+            for vertix in edge:
+                net = Address.get_net_from_IP(vertix[0].addr.ip, vertix[0].addr.mask)
+                print(vertix[0].desc, vertix[0].addr, net, Address.get_gateway_number(vertix[0].addr.ip, net),'\t-\t', end="")
+            print()'''
         self.add_nodes()
         self.add_edges()
         self.dot.render('output/net')
@@ -57,20 +64,34 @@ class NetGenerator():
     def add_edges(self, edge=None):
         if not edge:
             self.add_nodes(node={'name':'NMS', 'type':'host'})
-            self.dot.edge('NMS', self.data['edges'][0][0][1], label=self.data['edges'][0][0][0])
+            net = Address.get_net_from_IP(self.data['edges'][0][0][0].addr.ip, self.data['edges'][0][0][0].addr.mask)
+            self.dot.edge('NMS', self.data['edges'][0][0][1], label=net, headlabel=Address.get_gateway_number(self.data['edges'][0][0][0].addr.ip, net))
 
             num_nets = 0
-            for net in self.data['edges'][1:]:
-                num_routers = len(net)
-                iff1, node1 = net[0]
+            for edge in self.data['edges'][1:]:
+
+                num_routers = len(edge)
+                iff1, node1 = edge[0]
+                net = Address.get_net_from_IP(iff1.addr.ip, iff1.addr.mask)
                 if num_routers == 1:
                     self.dot.node('end'+str(num_nets),  shape='box', label='EndPoint')
-                    self.dot.edge(node1, 'end'+str(num_nets), taillabel=iff1)
+                    self.dot.edge(node1, 'end'+str(num_nets), label=net, taillabel=Address.get_gateway_number(iff1.addr.ip, net))
                 elif num_routers == 2:
-                    iff2, node2 = net[1]
-                    self.dot.edge(node2, node1, headlabel=iff2, taillabel=iff1)
+                    iff2, node2 = edge[1]
+                    if isinstance(iff2, Interface):
+                        self.dot.edge(node2, node1, label=net, headlabel=Address.get_gateway_number(iff2.addr.ip, net), taillabel=Address.get_gateway_number(iff1.addr.ip, net))
+                    else:
+                        self.dot.node('net'+str(num_nets),  shape='box', label='Network')
+                        self.dot.edge(node1, 'net'+str(num_nets), label=net, taillabel=Address.get_gateway_number(iff1.addr.ip, net), headlabel=Address.get_gateway_number(iff2.addr.ip, net))
                 else:
-                    pass
+                    self.dot.node('switch'+str(num_nets),  style='invis', label=net)
+                    for iff, node in edge:
+                        if isinstance(iff, Interface):
+                            self.dot.edge(node, 'switch'+str(num_nets), taillabel=Address.get_gateway_number(iff.addr.ip, net))
+                        else:
+                            self.dot.node('net'+str(num_nets),  shape='box', label='Network')
+                            self.dot.edge('switch'+str(num_nets), 'net'+str(num_nets), taillabel=Address.get_gateway_number(iff, net))
+
 
 
                 num_nets+=1
