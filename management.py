@@ -103,7 +103,6 @@ def iter_network(node=None):
     while fringe:
 
         curr=fringe.pop(0)  #FIFO queue
-        print(curr.id.name)
         nodes.append(curr)
         add_edges(edges, curr)
 
@@ -177,7 +176,7 @@ def add_edges(edges, dev):
             continue
 
         nw = Address.get_net_from_IP(iff.addr.ip, iff.addr.mask)
-        edges.setdefault((nw, iff.addr.mask), []).append((iff.addr.ip, dev))
+        edges.setdefault((nw, iff.addr.mask), []).append((iff, dev))
 
 
 def get_mask(dev, ip):
@@ -205,7 +204,7 @@ def get_identifier():
 
     name = session.get('sysName.0').value
     desc = session.get('sysDescr.0').value
-    situation = session.get('sysORLastChange.0').value  # TODO
+    situation = session.get('sysORLastChange.0').value
     upTime = session.get('sysUpTime.0').value
 
     return Identifier(name, desc, situation, upTime)
@@ -222,7 +221,7 @@ def get_ifs():
         ''' Note we save all type of ifs, but when exploring we shall only use,
          type 6 ifs (ethernet).'''
         status = session.get('ifOperStatus.' + str(index)).value
-        type = session.get('ifType.' + str(index)).value
+        iff_type = session.get('ifType.' + str(index)).value
         desc = session.get('ifDescr.' + str(index)).value
         speed = session.get('ifSpeed.' + str(index)).value
         addr_table = session.walk('ipAdEntIfIndex')
@@ -233,7 +232,7 @@ def get_ifs():
                 addr = Address(session.get('ipAdEntAddr.' + entry.oid_index).value,
                                 session.get('ipAdEntNetMask.' + entry.oid_index).value)
 
-        ifs.append(Interface(type, desc, speed, addr))
+        ifs.append(Interface(iff_type, desc, speed, addr))
 
     return ifs
 
