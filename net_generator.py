@@ -1,21 +1,6 @@
 from graphviz import Graph, Digraph
 from dataStructures import *
-
-#Tests
-data_test = {'nodes': ['R1','R2','R3','R5','R4'],
-            'edges': [
-                (('40.1.12.1','R1'),()),
-                (('192.168.17.1','R1'),('192.168.17.2','R2')),
-                (('192.168.15.1','R1'),('192.168.15.3','R3')),
-                (('192.168.3.3','R3'),('192.168.3.4','R4')),
-                (('192.168.5.3','R3'),('192.168.5.5','R5')),
-                (('192.168.13.3','R3'),('192.168.13.2','R2')),
-                (('60.1.0.2','R2'),()),
-                (('192.168.7.5','R5'),('192.168.7.4','R4')),
-                (('90.9.1.5','R5'),()),
-                (('30.0.2.4','R4'),()),
-                (('50.0.4.4','R4'),()),
-            ]}
+from ipaddress import IPv4Network
 
 class NetGenerator():
 
@@ -31,19 +16,13 @@ class NetGenerator():
             for n in edge:
                 transformed_edge.append((n[0], n[1].id.name if isinstance(n[1], Device) else n[1]))
             edge_list.append(tuple(transformed_edge))
-        self.dot = Graph(comment='Network', format='pdf')
+        self.dot = Graph(comment='Network', format='jpg')
         self.data = {'nodes': [n.id.name for n in nodes], 'edges': edge_list}
 
-        '''print([n.id.name for n in nodes])
-        print(edges)
-        for edge in edges:
-            for vertix in edge:
-                net = Address.get_net_from_IP(vertix[0].addr.ip, vertix[0].addr.mask)
-                print(vertix[0].desc, vertix[0].addr, net, Address.get_gateway_number(vertix[0].addr.ip, net),'\t-\t', end="")
-            print()'''
         self.add_nodes()
         self.add_edges()
-        self.dot.render('output/net')
+        self.dot.render('output/net_graph')
+        self.generate_report(nodes)
 
     def add_nodes(self, node={}):
         #TO-DO if nodes not none
@@ -65,7 +44,7 @@ class NetGenerator():
         if not edge:
             self.add_nodes(node={'name':'NMS', 'type':'host'})
             net = Address.get_net_from_IP(self.data['edges'][0][0][0].addr.ip, self.data['edges'][0][0][0].addr.mask)
-            self.dot.edge('NMS', self.data['edges'][0][0][1], label=net, headlabel=Address.get_gateway_number(self.data['edges'][0][0][0].addr.ip, net))
+            self.dot.edge('NMS', self.data['edges'][0][0][1], label=net, headlabel=Address.get_gateway_number(self.data['edges'][0][0][0].addr.ip, net), minlen='4')
 
             num_nets = 0
             for edge in self.data['edges'][1:]:
@@ -73,25 +52,51 @@ class NetGenerator():
                 num_routers = len(edge)
                 iff1, node1 = edge[0]
                 net = Address.get_net_from_IP(iff1.addr.ip, iff1.addr.mask)
+                ciddr = '/'+str(IPv4Network('0.0.0.0/' + iff1.addr.mask).prefixlen)
                 if num_routers == 1:
                     self.dot.node('end'+str(num_nets),  shape='box', label='EndPoint')
-                    self.dot.edge(node1, 'end'+str(num_nets), label=net, taillabel=Address.get_gateway_number(iff1.addr.ip, net))
+                    self.dot.edge(node1, 'end'+str(num_nets), label=net+ciddr, taillabel=iff1.desc+'\n'+Address.get_gateway_number(iff1.addr.ip, net), minlen='4')
                 elif num_routers == 2:
                     iff2, node2 = edge[1]
                     if isinstance(iff2, Interface):
-                        self.dot.edge(node2, node1, label=net, headlabel=Address.get_gateway_number(iff2.addr.ip, net), taillabel=Address.get_gateway_number(iff1.addr.ip, net))
+                        self.dot.edge(node2, node1, label=net+ciddr, headlabel=iff2.desc+'\n'+Address.get_gateway_number(iff2.addr.ip, net), taillabel=iff1.desc+'\n'+Address.get_gateway_number(iff1.addr.ip, net), minlen='4')
                     else:
                         self.dot.node('net'+str(num_nets),  shape='box', label='Network')
-                        self.dot.edge(node1, 'net'+str(num_nets), label=net, taillabel=Address.get_gateway_number(iff1.addr.ip, net), headlabel=Address.get_gateway_number(iff2, net))
+                        self.dot.edge(node1, 'net'+str(num_nets), label=net+ciddr, taillabel=iff1.desc+'\n'+Address.get_gateway_number(iff1.addr.ip, net), headlabel=iff2.desc+'\n'+Address.get_gateway_number(iff2, net), minlen='4')
                 else:
-                    self.dot.node('switch'+str(num_nets),  style='invis', label=net)
+                    self.dot.node('switch'+str(num_nets),  style='invis', label=net+ciddr)
                     for iff, node in edge:
                         if isinstance(iff, Interface):
-                            self.dot.edge(node, 'switch'+str(num_nets), taillabel=Address.get_gateway_number(iff.addr.ip, net))
+                            self.dot.edge(node, 'switch'+str(num_nets), taillabel=iff.desc+'\n'+Address.get_gateway_number(iff.addr.ip, net), minlen='4')
                         else:
                             self.dot.node('net'+str(num_nets),  shape='box', label='Network')
-                            self.dot.edge('switch'+str(num_nets), 'net'+str(num_nets), taillabel=Address.get_gateway_number(iff, net))
-
-
+                            self.dot.edge('switch'+str(num_nets), 'net'+str(num_nets), taillabel=iff.desc+'\n'+Address.get_gateway_number(iff, net), minlen='4')
 
                 num_nets+=1
+
+    def generate_report(self, nodes):
+        def w(msg=''):
+            file.write(msg+'\n')
+
+        with open('output/report.txt', 'w') as file:
+            w('Network Report\n')
+            w('Routers in network\n')
+            for router in nodes:
+                w('ROUTER IDENTIFIER')
+                w('Name: ' + router.id.name)
+                w('Description: ' + router.id.description)
+                w('Status: ' + router.id.status)
+                w('Time on: ' + str(round(float(router.id.time_on)/600,2)) + ' minutes')
+                w('\nROUTER INTERFACES')
+                for iff in router.ifs:
+                    w('\t'+iff.desc)
+                    w('\t\tType Number: '+iff.type)
+                    w('\t\tSpeed: '+ str(round(float(iff.speed)/1000000,2)) + ' Mbits per second')
+                    w('\t\tIP Address: ' + str(iff.addr))
+                w('\nROUTER IP TABLE')
+                for entry in router.ip_table:
+                    w('\tEntry')
+                    w('\t\tRoute Type: '+entry.route_type)
+                    w('\t\tAddress: '+ str(entry.addr))
+                    w('\t\tnext_hop: '+ str(entry.next_hop))
+                w('\n'+'-'*60+'\n')
