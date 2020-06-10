@@ -24,8 +24,8 @@ class NetGenerator():
         self.dot.render('output/net_graph')
         self.generate_report(nodes)
 
+
     def add_nodes(self, node={}):
-        #TO-DO if nodes not none
         if node:
             position = str(len(self.node_mapping))
             self.node_mapping[position] = node['name']
@@ -62,7 +62,7 @@ class NetGenerator():
                         self.dot.edge(node2, node1, label=net+ciddr, headlabel=iff2.desc+'\n'+Address.get_gateway_number(iff2.addr.ip, net), taillabel=iff1.desc+'\n'+Address.get_gateway_number(iff1.addr.ip, net), minlen='4')
                     else:
                         self.dot.node('net'+str(num_nets),  shape='box', label='Network')
-                        self.dot.edge(node1, 'net'+str(num_nets), label=net+ciddr, taillabel=iff1.desc+'\n'+Address.get_gateway_number(iff1.addr.ip, net), headlabel=iff2.desc+'\n'+Address.get_gateway_number(iff2, net), minlen='4')
+                        self.dot.edge(node1, 'net'+str(num_nets), label=net+ciddr, taillabel=iff1.desc+'\n'+Address.get_gateway_number(iff1.addr.ip, net), headlabel=Address.get_gateway_number(iff2, net), minlen='4')
                 else:
                     self.dot.node('switch'+str(num_nets),  style='invis', label=net+ciddr)
                     for iff, node in edge:
@@ -70,9 +70,10 @@ class NetGenerator():
                             self.dot.edge(node, 'switch'+str(num_nets), taillabel=iff.desc+'\n'+Address.get_gateway_number(iff.addr.ip, net), minlen='4')
                         else:
                             self.dot.node('net'+str(num_nets),  shape='box', label='Network')
-                            self.dot.edge('switch'+str(num_nets), 'net'+str(num_nets), taillabel=iff.desc+'\n'+Address.get_gateway_number(iff, net), minlen='4')
+                            self.dot.edge('switch'+str(num_nets), 'net'+str(num_nets), taillabel=iff+'\n'+Address.get_gateway_number(iff, net), minlen='4')
 
                 num_nets+=1
+
 
     def generate_report(self, nodes):
         def w(msg=''):

@@ -1,0 +1,571 @@
+Network Report
+
+Routers in network
+
+ROUTER IDENTIFIER
+Name: R1
+Description: Cisco IOS Software, 7200 Software (C7200-ADVENTERPRISEK9-M), Version 15.2(4)M7, RELEASE SOFTWARE (fc2)
+Technical Support: http://www.cisco.com/techsupport
+Copyright (c) 1986-2014 by Cisco Systems, Inc.
+Compiled Thu 25-Sep-14 10:36 by prod_rel_team
+Status: 
+Time on: 24.04 minutes
+
+ROUTER INTERFACES
+	FastEthernet0/0
+		Type Number: 6
+		Speed: 100.0 Mbits per second
+		IP Address: 193.12.5.1/255.255.255.0
+	FastEthernet0/1
+		Type Number: 6
+		Speed: 100.0 Mbits per second
+		IP Address: 40.10.2.1/255.255.255.0
+	FastEthernet1/0
+		Type Number: 6
+		Speed: 100.0 Mbits per second
+		IP Address: 40.20.4.1/255.255.254.0
+	FastEthernet1/1
+		Type Number: 6
+		Speed: 100.0 Mbits per second
+		IP Address: 80.10.0.1/255.255.0.0
+	VoIP-Null0
+		Type Number: 1
+		Speed: 4294.97 Mbits per second
+		IP Address: None
+	Null0
+		Type Number: 1
+		Speed: 4294.97 Mbits per second
+		IP Address: None
+	Tunnel0
+		Type Number: 131
+		Speed: 0.1 Mbits per second
+		IP Address: None
+
+ROUTER IP TABLE
+	Entry
+		Route Type: 4
+		Address: 20.40.2.0/255.255.255.0
+		next_hop: 80.10.0.2
+	Entry
+		Route Type: 4
+		Address: 20.50.4.0/255.255.255.128
+		next_hop: 40.20.4.3
+	Entry
+		Route Type: 4
+		Address: 20.50.4.0/255.255.255.128
+		next_hop: 80.10.0.2
+	Entry
+		Route Type: 4
+		Address: 20.60.0.0/255.255.0.0
+		next_hop: 40.20.4.3
+	Entry
+		Route Type: 3
+		Address: 40.10.2.0/255.255.255.0
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 3
+		Address: 40.10.2.1/255.255.255.255
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 3
+		Address: 40.20.4.0/255.255.254.0
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 3
+		Address: 40.20.4.1/255.255.255.255
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 4
+		Address: 40.30.6.0/255.255.255.0
+		next_hop: 40.10.2.4
+	Entry
+		Route Type: 4
+		Address: 40.30.6.0/255.255.255.0
+		next_hop: 40.20.4.3
+	Entry
+		Route Type: 3
+		Address: 80.10.0.0/255.255.0.0
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 3
+		Address: 80.10.0.1/255.255.255.255
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 4
+		Address: 113.1.7.0/255.255.255.0
+		next_hop: 40.20.4.3
+	Entry
+		Route Type: 4
+		Address: 113.1.7.0/255.255.255.0
+		next_hop: 80.10.0.2
+	Entry
+		Route Type: 4
+		Address: 143.8.0.0/255.255.0.0
+		next_hop: 40.10.2.4
+	Entry
+		Route Type: 3
+		Address: 193.12.5.0/255.255.255.0
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 3
+		Address: 193.12.5.1/255.255.255.255
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 4
+		Address: 214.2.16.0/255.255.240.0
+		next_hop: 80.10.0.2
+
+------------------------------------------------------------
+
+ROUTER IDENTIFIER
+Name: R2
+Description: Cisco IOS Software, 7200 Software (C7200-ADVENTERPRISEK9-M), Version 15.2(4)M7, RELEASE SOFTWARE (fc2)
+Technical Support: http://www.cisco.com/techsupport
+Copyright (c) 1986-2014 by Cisco Systems, Inc.
+Compiled Thu 25-Sep-14 10:36 by prod_rel_team
+Status: 
+Time on: 24.3 minutes
+
+ROUTER INTERFACES
+	FastEthernet0/0
+		Type Number: 6
+		Speed: 100.0 Mbits per second
+		IP Address: 80.10.0.2/255.255.0.0
+	FastEthernet0/1
+		Type Number: 6
+		Speed: 100.0 Mbits per second
+		IP Address: 214.2.16.2/255.255.240.0
+	FastEthernet1/0
+		Type Number: 6
+		Speed: 100.0 Mbits per second
+		IP Address: 20.50.4.2/255.255.255.128
+	FastEthernet1/1
+		Type Number: 6
+		Speed: 100.0 Mbits per second
+		IP Address: 20.40.2.2/255.255.255.0
+	VoIP-Null0
+		Type Number: 1
+		Speed: 4294.97 Mbits per second
+		IP Address: None
+	Null0
+		Type Number: 1
+		Speed: 4294.97 Mbits per second
+		IP Address: None
+	Tunnel0
+		Type Number: 131
+		Speed: 0.1 Mbits per second
+		IP Address: None
+
+ROUTER IP TABLE
+	Entry
+		Route Type: 3
+		Address: 20.40.2.0/255.255.255.0
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 3
+		Address: 20.40.2.2/255.255.255.255
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 3
+		Address: 20.50.4.0/255.255.255.128
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 3
+		Address: 20.50.4.2/255.255.255.255
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 4
+		Address: 20.60.0.0/255.255.0.0
+		next_hop: 20.40.2.5
+	Entry
+		Route Type: 4
+		Address: 20.60.0.0/255.255.0.0
+		next_hop: 20.50.4.3
+	Entry
+		Route Type: 4
+		Address: 40.10.2.0/255.255.255.0
+		next_hop: 80.10.0.1
+	Entry
+		Route Type: 4
+		Address: 40.20.4.0/255.255.254.0
+		next_hop: 20.50.4.3
+	Entry
+		Route Type: 4
+		Address: 40.20.4.0/255.255.254.0
+		next_hop: 80.10.0.1
+	Entry
+		Route Type: 4
+		Address: 40.30.6.0/255.255.255.0
+		next_hop: 20.50.4.3
+	Entry
+		Route Type: 3
+		Address: 80.10.0.0/255.255.0.0
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 3
+		Address: 80.10.0.2/255.255.255.255
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 4
+		Address: 113.1.7.0/255.255.255.0
+		next_hop: 20.40.2.5
+	Entry
+		Route Type: 4
+		Address: 143.8.0.0/255.255.0.0
+		next_hop: 20.50.4.3
+	Entry
+		Route Type: 4
+		Address: 143.8.0.0/255.255.0.0
+		next_hop: 80.10.0.1
+	Entry
+		Route Type: 4
+		Address: 193.12.5.0/255.255.255.0
+		next_hop: 80.10.0.1
+	Entry
+		Route Type: 3
+		Address: 214.2.16.0/255.255.240.0
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 3
+		Address: 214.2.16.2/255.255.255.255
+		next_hop: 0.0.0.0
+
+------------------------------------------------------------
+
+ROUTER IDENTIFIER
+Name: R3
+Description: Cisco IOS Software, 7200 Software (C7200-ADVENTERPRISEK9-M), Version 15.2(4)M7, RELEASE SOFTWARE (fc2)
+Technical Support: http://www.cisco.com/techsupport
+Copyright (c) 1986-2014 by Cisco Systems, Inc.
+Compiled Thu 25-Sep-14 10:36 by prod_rel_team
+Status: 
+Time on: 26.64 minutes
+
+ROUTER INTERFACES
+	FastEthernet0/0
+		Type Number: 6
+		Speed: 100.0 Mbits per second
+		IP Address: 40.20.4.3/255.255.254.0
+	FastEthernet0/1
+		Type Number: 6
+		Speed: 100.0 Mbits per second
+		IP Address: 20.50.4.3/255.255.255.128
+	FastEthernet1/0
+		Type Number: 6
+		Speed: 100.0 Mbits per second
+		IP Address: 40.30.6.3/255.255.255.0
+	FastEthernet1/1
+		Type Number: 6
+		Speed: 100.0 Mbits per second
+		IP Address: 20.60.6.3/255.255.0.0
+	VoIP-Null0
+		Type Number: 1
+		Speed: 4294.97 Mbits per second
+		IP Address: None
+	Null0
+		Type Number: 1
+		Speed: 4294.97 Mbits per second
+		IP Address: None
+	Tunnel0
+		Type Number: 131
+		Speed: 0.1 Mbits per second
+		IP Address: None
+	Tunnel1
+		Type Number: 131
+		Speed: 0.1 Mbits per second
+		IP Address: None
+
+ROUTER IP TABLE
+	Entry
+		Route Type: 4
+		Address: 20.40.2.0/255.255.255.0
+		next_hop: 20.50.4.2
+	Entry
+		Route Type: 4
+		Address: 20.40.2.0/255.255.255.0
+		next_hop: 20.60.6.5
+	Entry
+		Route Type: 3
+		Address: 20.50.4.0/255.255.255.128
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 3
+		Address: 20.50.4.3/255.255.255.255
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 3
+		Address: 20.60.0.0/255.255.0.0
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 3
+		Address: 20.60.6.3/255.255.255.255
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 4
+		Address: 40.10.2.0/255.255.255.0
+		next_hop: 40.20.4.1
+	Entry
+		Route Type: 4
+		Address: 40.10.2.0/255.255.255.0
+		next_hop: 40.30.6.4
+	Entry
+		Route Type: 3
+		Address: 40.20.4.0/255.255.254.0
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 3
+		Address: 40.20.4.3/255.255.255.255
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 3
+		Address: 40.30.6.0/255.255.255.0
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 3
+		Address: 40.30.6.3/255.255.255.255
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 4
+		Address: 80.10.0.0/255.255.0.0
+		next_hop: 20.50.4.2
+	Entry
+		Route Type: 4
+		Address: 80.10.0.0/255.255.0.0
+		next_hop: 40.20.4.1
+	Entry
+		Route Type: 4
+		Address: 113.1.7.0/255.255.255.0
+		next_hop: 20.60.6.5
+	Entry
+		Route Type: 4
+		Address: 143.8.0.0/255.255.0.0
+		next_hop: 40.30.6.4
+	Entry
+		Route Type: 4
+		Address: 193.12.5.0/255.255.255.0
+		next_hop: 40.20.4.1
+	Entry
+		Route Type: 4
+		Address: 214.2.16.0/255.255.240.0
+		next_hop: 20.50.4.2
+
+------------------------------------------------------------
+
+ROUTER IDENTIFIER
+Name: R4
+Description: Cisco IOS Software, 7200 Software (C7200-ADVENTERPRISEK9-M), Version 15.2(4)M7, RELEASE SOFTWARE (fc2)
+Technical Support: http://www.cisco.com/techsupport
+Copyright (c) 1986-2014 by Cisco Systems, Inc.
+Compiled Thu 25-Sep-14 10:36 by prod_rel_team
+Status: 
+Time on: 25.64 minutes
+
+ROUTER INTERFACES
+	FastEthernet0/0
+		Type Number: 6
+		Speed: 100.0 Mbits per second
+		IP Address: 40.10.2.4/255.255.255.0
+	FastEthernet0/1
+		Type Number: 6
+		Speed: 100.0 Mbits per second
+		IP Address: 40.30.6.4/255.255.255.0
+	FastEthernet1/0
+		Type Number: 6
+		Speed: 100.0 Mbits per second
+		IP Address: 143.8.0.4/255.255.0.0
+	FastEthernet1/1
+		Type Number: 6
+		Speed: 100.0 Mbits per second
+		IP Address: None
+	VoIP-Null0
+		Type Number: 1
+		Speed: 4294.97 Mbits per second
+		IP Address: None
+	Null0
+		Type Number: 1
+		Speed: 4294.97 Mbits per second
+		IP Address: None
+	Tunnel0
+		Type Number: 131
+		Speed: 0.1 Mbits per second
+		IP Address: None
+
+ROUTER IP TABLE
+	Entry
+		Route Type: 4
+		Address: 20.40.2.0/255.255.255.0
+		next_hop: 40.10.2.1
+	Entry
+		Route Type: 4
+		Address: 20.40.2.0/255.255.255.0
+		next_hop: 40.30.6.3
+	Entry
+		Route Type: 4
+		Address: 20.50.4.0/255.255.255.128
+		next_hop: 40.30.6.3
+	Entry
+		Route Type: 4
+		Address: 20.60.0.0/255.255.0.0
+		next_hop: 40.30.6.3
+	Entry
+		Route Type: 3
+		Address: 40.10.2.0/255.255.255.0
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 3
+		Address: 40.10.2.4/255.255.255.255
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 4
+		Address: 40.20.4.0/255.255.254.0
+		next_hop: 40.10.2.1
+	Entry
+		Route Type: 4
+		Address: 40.20.4.0/255.255.254.0
+		next_hop: 40.30.6.3
+	Entry
+		Route Type: 3
+		Address: 40.30.6.0/255.255.255.0
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 3
+		Address: 40.30.6.4/255.255.255.255
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 4
+		Address: 80.10.0.0/255.255.0.0
+		next_hop: 40.10.2.1
+	Entry
+		Route Type: 4
+		Address: 113.1.7.0/255.255.255.0
+		next_hop: 40.30.6.3
+	Entry
+		Route Type: 3
+		Address: 143.8.0.0/255.255.0.0
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 3
+		Address: 143.8.0.4/255.255.255.255
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 4
+		Address: 193.12.5.0/255.255.255.0
+		next_hop: 40.10.2.1
+	Entry
+		Route Type: 4
+		Address: 214.2.16.0/255.255.240.0
+		next_hop: 40.10.2.1
+	Entry
+		Route Type: 4
+		Address: 214.2.16.0/255.255.240.0
+		next_hop: 40.30.6.3
+
+------------------------------------------------------------
+
+ROUTER IDENTIFIER
+Name: R5
+Description: Cisco IOS Software, 7200 Software (C7200-ADVENTERPRISEK9-M), Version 15.2(4)M7, RELEASE SOFTWARE (fc2)
+Technical Support: http://www.cisco.com/techsupport
+Copyright (c) 1986-2014 by Cisco Systems, Inc.
+Compiled Thu 25-Sep-14 10:36 by prod_rel_team
+Status: 
+Time on: 26.22 minutes
+
+ROUTER INTERFACES
+	FastEthernet0/0
+		Type Number: 6
+		Speed: 100.0 Mbits per second
+		IP Address: 20.40.2.5/255.255.255.0
+	FastEthernet0/1
+		Type Number: 6
+		Speed: 100.0 Mbits per second
+		IP Address: 20.60.6.5/255.255.0.0
+	FastEthernet1/0
+		Type Number: 6
+		Speed: 100.0 Mbits per second
+		IP Address: 113.1.7.5/255.255.255.0
+	VoIP-Null0
+		Type Number: 1
+		Speed: 4294.97 Mbits per second
+		IP Address: None
+	Null0
+		Type Number: 1
+		Speed: 4294.97 Mbits per second
+		IP Address: None
+	Tunnel0
+		Type Number: 131
+		Speed: 0.1 Mbits per second
+		IP Address: None
+
+ROUTER IP TABLE
+	Entry
+		Route Type: 3
+		Address: 20.40.2.0/255.255.255.0
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 3
+		Address: 20.40.2.5/255.255.255.255
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 4
+		Address: 20.50.4.0/255.255.255.128
+		next_hop: 20.40.2.2
+	Entry
+		Route Type: 4
+		Address: 20.50.4.0/255.255.255.128
+		next_hop: 20.60.6.3
+	Entry
+		Route Type: 3
+		Address: 20.60.0.0/255.255.0.0
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 3
+		Address: 20.60.6.5/255.255.255.255
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 4
+		Address: 40.10.2.0/255.255.255.0
+		next_hop: 20.40.2.2
+	Entry
+		Route Type: 4
+		Address: 40.10.2.0/255.255.255.0
+		next_hop: 20.60.6.3
+	Entry
+		Route Type: 4
+		Address: 40.20.4.0/255.255.254.0
+		next_hop: 20.60.6.3
+	Entry
+		Route Type: 4
+		Address: 40.30.6.0/255.255.255.0
+		next_hop: 20.60.6.3
+	Entry
+		Route Type: 4
+		Address: 80.10.0.0/255.255.0.0
+		next_hop: 20.40.2.2
+	Entry
+		Route Type: 3
+		Address: 113.1.7.0/255.255.255.0
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 3
+		Address: 113.1.7.5/255.255.255.255
+		next_hop: 0.0.0.0
+	Entry
+		Route Type: 4
+		Address: 143.8.0.0/255.255.0.0
+		next_hop: 20.60.6.3
+	Entry
+		Route Type: 4
+		Address: 193.12.5.0/255.255.255.0
+		next_hop: 20.40.2.2
+	Entry
+		Route Type: 4
+		Address: 193.12.5.0/255.255.255.0
+		next_hop: 20.60.6.3
+	Entry
+		Route Type: 4
+		Address: 214.2.16.0/255.255.240.0
+		next_hop: 20.40.2.2
+
+------------------------------------------------------------
+

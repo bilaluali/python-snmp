@@ -26,12 +26,6 @@ community, version, ip, session = None, None, None, None
 ipr = IPRoute()
 routes = []
 
-#Commands tap Interface
-#ip tuntap add name tap0 mode tap
-#ip link set tap0 up
-#ip addr add 40.1.12.10/22 dev tap0
-# snmp-server community public RO
-
 
 class NotRootUserException(Exception):
     """ Raised when a program not run as root """
@@ -89,7 +83,7 @@ def init():
     nodes, edges = iter_network(init_node)
 
     net = NetGenerator(nodes, edges)
-    print("Generated graph in output folder")
+    print("Generated graph and report in output folder")
     delete_routes()
 
 
@@ -104,6 +98,8 @@ def iter_network(node=None):
     while fringe:
 
         curr=fringe.pop(0)  #FIFO queue
+        print("Accessing {}...".format(curr.id.name))
+
         nodes.append(curr)
         add_edges(edges, curr)
 

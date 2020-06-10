@@ -1,0 +1,40 @@
+// Network
+graph {
+	R1 [image="../router.jpg" shape=plaintext]
+	R2 [image="../router.jpg" shape=plaintext]
+	R3 [image="../router.jpg" shape=plaintext]
+	R4 [image="../router.jpg" shape=plaintext]
+	R5 [image="../router.jpg" shape=plaintext]
+	NMS [image="../host.png" shape=plaintext]
+	NMS -- R1 [label="193.12.5.0" headlabel=.1 minlen=4]
+	R4 -- R1 [label="40.10.2.0/24" headlabel="FastEthernet0/0
+.4" minlen=4 taillabel="FastEthernet0/1
+.1"]
+	R3 -- R1 [label="40.20.4.0/23" headlabel="FastEthernet0/0
+.3" minlen=4 taillabel="FastEthernet1/0
+.1"]
+	R2 -- R1 [label="80.10.0.0/16" headlabel="FastEthernet0/0
+.2" minlen=4 taillabel="FastEthernet1/1
+.1"]
+	end3 [label=EndPoint shape=box]
+	R2 -- end3 [label="214.2.16.0/20" minlen=4 taillabel="FastEthernet0/1
+.2"]
+	R3 -- R2 [label="20.50.4.0/25" headlabel="FastEthernet0/1
+.3" minlen=4 taillabel="FastEthernet1/0
+.2"]
+	R5 -- R2 [label="20.40.2.0/24" headlabel="FastEthernet0/0
+.5" minlen=4 taillabel="FastEthernet1/1
+.2"]
+	R4 -- R3 [label="40.30.6.0/24" headlabel="FastEthernet0/1
+.4" minlen=4 taillabel="FastEthernet1/0
+.3"]
+	R5 -- R3 [label="20.60.0.0/16" headlabel="FastEthernet0/1
+.5" minlen=4 taillabel="FastEthernet1/1
+.3"]
+	end8 [label=EndPoint shape=box]
+	R4 -- end8 [label="143.8.0.0/16" minlen=4 taillabel="FastEthernet1/0
+.4"]
+	end9 [label=EndPoint shape=box]
+	R5 -- end9 [label="113.1.7.0/24" minlen=4 taillabel="FastEthernet1/0
+.5"]
+}
