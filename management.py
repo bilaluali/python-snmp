@@ -205,7 +205,7 @@ def get_identifier():
 
     name = session.get('sysName.0').value
     desc = session.get('sysDescr.0').value
-    situation = session.get('sysORLastChange.0').value
+    situation = session.get('sysLocation.0').value
     upTime = session.get('sysUpTime.0').value
 
     return Identifier(name, desc, situation, upTime)
