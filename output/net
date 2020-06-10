@@ -1,8 +1,24 @@
 // Network
 graph {
-	R1
-	R2
-	R3
-	R5
-	R4
+	R1 [image="../router.jpg" shape=plaintext]
+	R3 [image="../router.jpg" shape=plaintext]
+	R2 [image="../router.jpg" shape=plaintext]
+	R5 [image="../router.jpg" shape=plaintext]
+	R4 [image="../router.jpg" shape=plaintext]
+	NMS [image="../host.png" shape=plaintext]
+	NMS -- R1 [label="40.1.12.1"]
+	R2 -- R1 [headlabel="192.168.17.2" taillabel="192.168.17.1"]
+	R3 -- R1 [headlabel="192.168.15.3" taillabel="192.168.15.1"]
+	R4 -- R3 [headlabel="192.168.3.4" taillabel="192.168.3.3"]
+	R5 -- R3 [headlabel="192.168.5.5" taillabel="192.168.5.3"]
+	R2 -- R3 [headlabel="192.168.13.2" taillabel="192.168.13.3"]
+	end5 [label=EndPoint shape=box]
+	R2 -- end5 [taillabel="60.1.0.2"]
+	R4 -- R5 [headlabel="192.168.7.4" taillabel="192.168.7.5"]
+	end7 [label=EndPoint shape=box]
+	R5 -- end7 [taillabel="90.9.1.5"]
+	end8 [label=EndPoint shape=box]
+	R4 -- end8 [taillabel="30.0.2.4"]
+	end9 [label=EndPoint shape=box]
+	R4 -- end9 [taillabel="50.0.4.4"]
 }
