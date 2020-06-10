@@ -30,7 +30,6 @@ class Identifier():
         return self.name == other.name and self.description == other.description
 
 
-
 class Interface():
 
     def __init__(self, type, desc, speed, addr):
@@ -43,7 +42,6 @@ class Interface():
 class Entry():
 
     def __init__(self, route_type, addr, next_hop):
-        #TODO: check types in parameter
         self.route_type = route_type
         self.addr = addr
         self.next_hop = next_hop
@@ -91,3 +89,7 @@ class Address():
 
     def __eq__(self, other):
         return self.ip == other.ip and self.mask == other.mask
+
+    @staticmethod
+    def get_gateway_number(ip, net):
+        return '.'+str(int(ip.split('.')[-1])-int(net.split('.')[-1]))
